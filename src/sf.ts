@@ -1,6 +1,7 @@
 import * as cp from 'child_process'
 import * as core from '@actions/core'
 import * as dotenv from 'dotenv'
+import {IFileContentsObject} from './interfaces'
 import readFiles from './rf'
 import spawnSync from './cp'
 
@@ -50,7 +51,7 @@ export function prepDelta(): void {
 }
 
 export function prepSFMetadataContent(): string {
-  const fileContentsObj: any = {}
+  const fileContentsObj: IFileContentsObject = {}
   readFiles(
     `${ROOT_DIR}${DIFF_DIR}`,
     (filename: string, content: string) => {
