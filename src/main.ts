@@ -1,18 +1,18 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import ai from './ai'
+import * as sfDiff from './sf'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    sfDiff.prepDelta()
+    const sfMetadataContent: string = sfDiff.prepSFMetadataContent()
+    const ai_resp = await ai(sfMetadataContent)
+    core.setOutput('ai_comment', ai_resp)
+    sfDiff.cleanup()
+  } catch (err) {
+    if (err instanceof Error) {
+      core.setFailed(err.message)
+    }
   }
 }
 
