@@ -319,7 +319,12 @@ function cleanup() {
 }
 exports.cleanup = cleanup;
 function createDelta() {
-    (0, cp_1.default)('echo', ['y', '|', 'sfdx', 'plugins:install', 'sfdx-git-delta']);
+    try {
+        (0, cp_1.default)('echo', ['y', '|', 'sfdx', 'plugins:install', 'sfdx-git-delta']);
+    }
+    catch (err) {
+        // Swallow errors relating to unmet peer dependencies when installing sfdx-git-delta plugin
+    }
     (0, cp_1.default)('mkdir', ['-p', DIFF_DIR], CP_OPTIONS);
     (0, cp_1.default)('sfdx', [
         'sgd:source:delta',

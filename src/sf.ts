@@ -30,7 +30,11 @@ export function cleanup(): void {
 }
 
 export function createDelta(): void {
-  spawnSync('echo', ['y', '|', 'sfdx', 'plugins:install', 'sfdx-git-delta'])
+  try {
+    spawnSync('echo', ['y', '|', 'sfdx', 'plugins:install', 'sfdx-git-delta'])
+  } catch (err) {
+    // Swallow errors relating to unmet peer dependencies when installing sfdx-git-delta plugin
+  }
   spawnSync('mkdir', ['-p', DIFF_DIR], CP_OPTIONS)
   spawnSync(
     'sfdx',
