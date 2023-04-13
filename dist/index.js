@@ -192,8 +192,12 @@ function run() {
             sfDiff.prep();
             sfDiff.createDelta();
             const sfMetadataContent = sfDiff.createSFMetadataContent();
-            const ai_resp = yield (0, ai_1.default)(sfMetadataContent);
-            core.setOutput('ai_comment', ai_resp);
+            const ai_resp = (yield (0, ai_1.default)(sfMetadataContent)) || '';
+            // Escape backticks and triple backticks See: https://webapps.stackexchange.com/questions/136172/does-github-have-an-escape-character-for-their-markup
+            const ai_resp_sanitized = ai_resp
+                .replace(/`/g, '\\`')
+                .replace(/\\`\\`\\`/g, '\\```');
+            core.setOutput('ai_comment', ai_resp_sanitized);
             sfDiff.cleanup();
         }
         catch (err) {
@@ -324,26 +328,19 @@ function cleanup() {
 }
 exports.cleanup = cleanup;
 function createDelta() {
-    try {
-        (0, cp_1.default)('mkdir', ['-p', DIFF_DIR], CP_OPTIONS);
-        (0, cp_1.default)('sfdx', [
-            'sgd:source:delta',
-            '--to',
-            `${DIFF_TO}`,
-            '--from',
-            `${DIFF_FROM}`,
-            '--generate-delta',
-            '--output',
-            `${DIFF_DIR}`
-        ], CP_OPTIONS);
-        (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}destructiveChanges`], CP_OPTIONS);
-        (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS);
-    }
-    catch (err) {
-        if (err instanceof Error) {
-            core.setFailed(err.message);
-        }
-    }
+    (0, cp_1.default)('mkdir', ['-p', DIFF_DIR], CP_OPTIONS);
+    (0, cp_1.default)('sfdx', [
+        'sgd:source:delta',
+        '--to',
+        `${DIFF_TO}`,
+        '--from',
+        `${DIFF_FROM}`,
+        '--generate-delta',
+        '--output',
+        `${DIFF_DIR}`
+    ], CP_OPTIONS);
+    (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}destructiveChanges`], CP_OPTIONS);
+    (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS);
 }
 exports.createDelta = createDelta;
 function createSFMetadataContent() {
