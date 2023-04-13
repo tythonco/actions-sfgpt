@@ -30,7 +30,7 @@ export function cleanup(): void {
 }
 
 export function createDelta(): void {
-  spawnSync('sfdx', ['plugins:install', 'sfdx-git-delta'])
+  spawnSync('echo', ['y', '|', 'sfdx', 'plugins:install', 'sfdx-git-delta'])
   spawnSync('mkdir', ['-p', DIFF_DIR], CP_OPTIONS)
   spawnSync(
     'sfdx',
