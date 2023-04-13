@@ -29,7 +29,7 @@ export function cleanup(): void {
   spawnSync('rm', ['-rf', DIFF_DIR], CP_OPTIONS)
 }
 
-export function prepDelta(): void {
+export function createDelta(): void {
   spawnSync('sfdx', ['plugins:install', 'sfdx-git-delta'])
   spawnSync('mkdir', ['-p', DIFF_DIR], CP_OPTIONS)
   spawnSync(
@@ -50,7 +50,7 @@ export function prepDelta(): void {
   spawnSync('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS)
 }
 
-export function prepSFMetadataContent(): string {
+export function createSFMetadataContent(): string {
   const fileContentsObj: IFileContentsObject = {}
   readFiles(
     `${ROOT_DIR}${DIFF_DIR}`,
@@ -66,4 +66,8 @@ export function prepSFMetadataContent(): string {
   return fileContents
 }
 
-export default {cleanup, prepDelta, prepSFMetadataContent}
+export function prep(): void {
+  spawnSync('npm', ['install', 'sfdx-cli', '--global'])
+}
+
+export default {cleanup, createDelta, createSFMetadataContent, prep}

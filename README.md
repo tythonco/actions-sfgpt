@@ -19,21 +19,52 @@ This GitHub Action uses the OpenAI api to automate a code review of Salesforce m
 
 ## Examples
 
-### Automated Code Review
+### Automated AI Code Review
 
-An example workflow that triggers upon a PR review request or after commenting `/review` on an open PR. The action posts a comment to the PR based on the results of the AI code review.
+An example workflow that triggers when a PR review is requested. The action posts a comment to the PR based on the results of the AI code review.
+
+```
+on:
+  pull_request:
+    types:
+      [review_requested]
+name: AI Code Review
+jobs:
+  ai_review:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: sfgpt
+      id: sfgpt
+      uses: tythonco/actions-sfgpt@main
+      with:
+        diff_from: ${{ github.event.pull_request.base.sha }}
+        diff_to: ${{ github.event.pull_request.head.sha }}
+        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+    - uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${{steps.sfgpt.outputs.ai_comment}}`
+            })
+```
+
+### Manual Code Review
+
+An example workflow that triggers when a comment is made on a PR that says `/review`. The action posts a comment to the PR based on the results of the AI code review.
 
 ```
 on:
   issue_comment:
     types:
       [created]
-  pull_request:
-    types:
-      [review_requested]
 name: AI Code Review
 jobs:
-  ai_review_pr_comment:
+  ai_review:
     if: ${{ github.event.issue.pull_request && github.event.comment.body == '/review' }}
     runs-on: ubuntu-latest
     steps:
@@ -48,27 +79,6 @@ jobs:
       with:
         diff_from: ${{ steps.comment-branch.outputs.base_sha }}
         diff_to: ${{ steps.comment-branch.outputs.head_sha }}
-        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-    - uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `${{steps.sfgpt.outputs.ai_comment}}`
-            })
-  ai_review_pr_review_request:
-    if: ${{ github.event_name == 'pull_request' }}    
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: sfgpt
-      id: sfgpt
-      uses: tythonco/actions-sfgpt@main
-      with:
-        diff_from: ${{ github.event.pull_request.base.sha }}
-        diff_to: ${{ github.event.pull_request.head.sha }}
         openai_api_key: ${{ secrets.OPENAI_API_KEY }}
     - uses: actions/github-script@v6
         with:

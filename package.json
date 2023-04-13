@@ -27,8 +27,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "dotenv": "^16.0.3",
-    "openai": "^3.2.1",
-    "sfdx-cli": "^7.194.1"
+    "openai": "^3.2.1"
   },
   "devDependencies": {
     "@types/node": "^18.15.0",

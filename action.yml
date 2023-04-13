@@ -1,5 +1,5 @@
 name: 'sfgpt'
-description: 'Automates a code review of Salesforce metadata via AI'
+description: 'Performs a code review of Salesforce metadata via AI'
 author: 'Tython'
 inputs:
   diff_dir:

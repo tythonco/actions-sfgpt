@@ -184,8 +184,9 @@ const sfDiff = __importStar(__nccwpck_require__(1214));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            sfDiff.prepDelta();
-            const sfMetadataContent = sfDiff.prepSFMetadataContent();
+            sfDiff.prep();
+            sfDiff.createDelta();
+            const sfMetadataContent = sfDiff.createSFMetadataContent();
             const ai_resp = yield (0, ai_1.default)(sfMetadataContent);
             core.setOutput('ai_comment', ai_resp);
             sfDiff.cleanup();
@@ -291,7 +292,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.prepSFMetadataContent = exports.prepDelta = exports.cleanup = void 0;
+exports.prep = exports.createSFMetadataContent = exports.createDelta = exports.cleanup = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const dotenv = __importStar(__nccwpck_require__(2437));
 const rf_1 = __importDefault(__nccwpck_require__(2625));
@@ -317,7 +318,7 @@ function cleanup() {
     (0, cp_1.default)('rm', ['-rf', DIFF_DIR], CP_OPTIONS);
 }
 exports.cleanup = cleanup;
-function prepDelta() {
+function createDelta() {
     (0, cp_1.default)('sfdx', ['plugins:install', 'sfdx-git-delta']);
     (0, cp_1.default)('mkdir', ['-p', DIFF_DIR], CP_OPTIONS);
     (0, cp_1.default)('sfdx', [
@@ -333,8 +334,8 @@ function prepDelta() {
     (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}destructiveChanges`], CP_OPTIONS);
     (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS);
 }
-exports.prepDelta = prepDelta;
-function prepSFMetadataContent() {
+exports.createDelta = createDelta;
+function createSFMetadataContent() {
     const fileContentsObj = {};
     (0, rf_1.default)(`${ROOT_DIR}${DIFF_DIR}`, (filename, content) => {
         fileContentsObj[filename] = content;
@@ -346,8 +347,12 @@ function prepSFMetadataContent() {
     Object.values(fileContentsObj).map(v => (fileContents += `${v}\n`));
     return fileContents;
 }
-exports.prepSFMetadataContent = prepSFMetadataContent;
-exports["default"] = { cleanup, prepDelta, prepSFMetadataContent };
+exports.createSFMetadataContent = createSFMetadataContent;
+function prep() {
+    (0, cp_1.default)('npm', ['install', 'sfdx-cli', '--global']);
+}
+exports.prep = prep;
+exports["default"] = { cleanup, createDelta, createSFMetadataContent, prep };
 
 
 /***/ }),

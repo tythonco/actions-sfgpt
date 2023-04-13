@@ -4,8 +4,9 @@ import * as sfDiff from './sf'
 
 async function run(): Promise<void> {
   try {
-    sfDiff.prepDelta()
-    const sfMetadataContent: string = sfDiff.prepSFMetadataContent()
+    sfDiff.prep()
+    sfDiff.createDelta()
+    const sfMetadataContent: string = sfDiff.createSFMetadataContent()
     const ai_resp = await ai(sfMetadataContent)
     core.setOutput('ai_comment', ai_resp)
     sfDiff.cleanup()
