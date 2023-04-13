@@ -56,24 +56,29 @@ function ai(sfMetadata) {
             if (!AI_API_KEY) {
                 throw new Error('Oops - You must set your OpenAI API Key as an env var!');
             }
-            const configuration = new openai_1.Configuration({
-                apiKey: AI_API_KEY
-            });
-            const openai = new openai_1.OpenAIApi(configuration);
-            const initialSystemMessage = {
-                role: 'system',
-                content: 'You are a helpful AI assistant that provides code reviews on Salesforce metadata to prevent security violations and enforce best practices.'
-            };
-            const userMessage = {
-                role: 'user',
-                content: sfMetadata
-            };
-            const payload = {
-                model: AI_MODEL,
-                messages: [initialSystemMessage, userMessage]
-            };
-            const completion = yield openai.createChatCompletion(payload);
-            return ((_c = (_b = (_a = completion === null || completion === void 0 ? void 0 : completion.data) === null || _a === void 0 ? void 0 : _a.choices[0]) === null || _b === void 0 ? void 0 : _b.message) === null || _c === void 0 ? void 0 : _c.content) || '';
+            if (AI_API_KEY === 'test') {
+                return 'test';
+            }
+            else {
+                const configuration = new openai_1.Configuration({
+                    apiKey: AI_API_KEY
+                });
+                const openai = new openai_1.OpenAIApi(configuration);
+                const initialSystemMessage = {
+                    role: 'system',
+                    content: 'You are a helpful AI assistant that provides code reviews on Salesforce metadata to prevent security violations and enforce best practices.'
+                };
+                const userMessage = {
+                    role: 'user',
+                    content: sfMetadata
+                };
+                const payload = {
+                    model: AI_MODEL,
+                    messages: [initialSystemMessage, userMessage]
+                };
+                const completion = yield openai.createChatCompletion(payload);
+                return ((_c = (_b = (_a = completion === null || completion === void 0 ? void 0 : completion.data) === null || _a === void 0 ? void 0 : _a.choices[0]) === null || _b === void 0 ? void 0 : _b.message) === null || _c === void 0 ? void 0 : _c.content) || '';
+            }
         }
         catch (err) {
             if (axios_1.default.isAxiosError(err)) {
