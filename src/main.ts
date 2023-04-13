@@ -1,18 +1,23 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import ai from './ai'
+import * as sfDiff from './sf'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    sfDiff.prep()
+    sfDiff.createDelta()
+    const sfMetadataContent: string = sfDiff.createSFMetadataContent()
+    const ai_resp: string = (await ai(sfMetadataContent)) || ''
+    // Escape backticks and triple backticks See: https://webapps.stackexchange.com/questions/136172/does-github-have-an-escape-character-for-their-markup
+    const ai_resp_sanitized: string = ai_resp
+      .replace(/`/g, '\\`')
+      .replace(/\\`\\`\\`/g, '\\```')
+    core.setOutput('ai_comment', ai_resp_sanitized)
+    sfDiff.cleanup()
+  } catch (err) {
+    if (err instanceof Error) {
+      core.setFailed(err.message)
+    }
   }
 }
 

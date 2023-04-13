@@ -1,11 +1,33 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'sfgpt'
+description: 'Performs a code review of Salesforce metadata via AI'
+author: 'Tython'
 inputs:
-  milliseconds: # change this
+  diff_dir:
+    default: 'sfDiffOutput'
+    description: 'Temporary directory to store results of diff'
+    required: false
+  diff_from:
+    default: 'HEAD~1'
+    description: 'Commit SHA from where the diff is done'
+    required: false
+  diff_to:
+    default: 'HEAD'
+    description: 'Commit SHA from where the diff is done'
+    required: false
+  openai_api_key:
+    description: 'OpenAI API Key'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  openai_model:
+    default: 'gpt-3.5-turbo'
+    description: 'OpenAI Model'
+    required: false
+  root_dir:
+    default: '.'
+    description: 'Root directory of git repository'
+    required: false
+outputs:
+  ai_comment:
+    description: 'Code review comment from AI'
 runs:
   using: 'node16'
   main: 'dist/index.js'

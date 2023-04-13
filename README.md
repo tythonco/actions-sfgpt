@@ -1,29 +1,109 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# GitHub Action for Salesforce Code Review via AI
 
-# Create a JavaScript Action using TypeScript
+This GitHub Action uses the OpenAI api to automate a code review of Salesforce metadata via AI.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+## Usage
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+| Input | Decription | Default |
+| --- | --- | --- |
+| diff_dir | Temporary directory to store results of diff | `sfDiffOutput` |
+| diff_from | Commit SHA from where the diff is done | `HEAD~1` |
+| diff_to | Commit SHA from where the diff is done | `HEAD` |
+| openai_api_key | OpenAI API Key | `None` |
+| openai_model | OpenAI Model | `gpt-3.5-turbo` |
+| root_dir | Root directory of git repository | `.` |
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+| Output | Decription |
+| --- | --- |
+| ai_comment | Code review comment from AI |
 
-## Create an action from this template
+## Examples
 
-Click the `Use this Template` and provide the new repo details for your action
+### Automated AI Code Review
 
-## Code in Main
+An example workflow that triggers when a PR review is requested. The action posts a comment to the PR based on the results of the AI code review.
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+```
+on:
+  pull_request:
+    types:
+      [review_requested]
+name: AI Code Review
+jobs:
+  ai_auto_review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: sfgpt
+      id: sfgpt
+      uses: tythonco/actions-sfgpt@v1
+      with:
+        diff_from: ${{ github.event.pull_request.base.sha }}
+        diff_to: ${{ github.event.pull_request.head.sha }}
+        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: ${{steps.sfgpt.outputs.ai_comment}}
+          })
+```
+
+### Manual Code Review
+
+An example workflow that triggers when a comment is made on a PR that says `/review`. The action posts a comment to the PR based on the results of the AI code review.
+
+```
+on:
+  issue_comment: # Note: This event will only trigger a workflow run if the workflow file is on the default branch.
+    types:
+      [created]
+name: AI Code Review
+jobs:
+  ai_manual_review:
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/review')
+    runs-on: ubuntu-latest
+    steps:
+    - uses: xt0rted/pull-request-comment-branch@v2
+      id: comment-branch
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ steps.comment-branch.outputs.head_ref }}
+    - name: sfgpt
+      id: sfgpt
+      uses: tythonco/actions-sfgpt@v1
+      with:
+        diff_from: ${{ steps.comment-branch.outputs.base_sha }}
+        diff_to: ${{ steps.comment-branch.outputs.head_sha }}
+        openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: ${{steps.sfgpt.outputs.ai_comment}}
+          })
+```
+
+## Development
+
+### Getting Started
 
 Install the dependencies  
 ```bash
 $ npm install
 ```
 
-Build the typescript and package it for distribution
+Build the typescript and package it for distribution after completing your updates
 ```bash
 $ npm run build && npm run package
 ```
@@ -31,75 +111,42 @@ $ npm run build && npm run package
 Run the tests :heavy_check_mark:  
 ```bash
 $ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
 ```
 
-## Change action.yml
+### Publishing
 
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
+Actions are run from GitHub repos so check in the packed `dist` folder after development of version X is complete.
 
 Then run [ncc](https://github.com/zeit/ncc) and push the results:
 ```bash
+$ npm run build
 $ npm run package
+$ git checkout -b releases/vX
 $ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
+$ git commit -a -m "Updates for vX"
+$ git push origin releases/vX
 ```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
 
 Your action is now published! :rocket: 
 
 See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
 
-## Validate
+### Validate
 
 You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
 
 ```yaml
 uses: ./
 with:
-  milliseconds: 1000
+  openai_api_key: test
 ```
 
 See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
 
-## Usage:
+### Versioning
 
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+After testing you can [create a version tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest version of your action
+
+## License
+
+The scripts and documentation in this project are released under the [MIT License](LICENSE.md).
