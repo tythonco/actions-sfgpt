@@ -50,7 +50,7 @@ dotenv.config();
 const AI_API_KEY = core.getInput('openai_api_key', { required: true }) || '';
 const AI_MODEL = core.getInput('openai_model') || 'gpt-3.5-turbo';
 function ai(sfMetadata) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f, _g;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             if (!AI_API_KEY) {
@@ -82,7 +82,7 @@ function ai(sfMetadata) {
         }
         catch (err) {
             if (axios_1.default.isAxiosError(err)) {
-                throw new Error(`${(_d = err.response) === null || _d === void 0 ? void 0 : _d.status} - ${(_e = err.response) === null || _e === void 0 ? void 0 : _e.data}`);
+                throw new Error(`${(_d = err.response) === null || _d === void 0 ? void 0 : _d.status} - ${(_g = (_f = (_e = err.response) === null || _e === void 0 ? void 0 : _e.data) === null || _f === void 0 ? void 0 : _f.error) === null || _g === void 0 ? void 0 : _g.message}`);
             }
             else if (err instanceof Error) {
                 throw new Error(err.message);
