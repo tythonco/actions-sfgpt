@@ -45,7 +45,9 @@ export default async function ai(
     }
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      throw new Error(`${err.response?.status} - ${err.response?.data}`)
+      throw new Error(
+        `${err.response?.status} - ${err.response?.data?.error?.message}`
+      )
     } else if (err instanceof Error) {
       throw new Error(err.message)
     }
