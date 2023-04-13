@@ -51,7 +51,7 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: ${{steps.sfgpt.outputs.ai_comment}}
+            body: `${{steps.sfgpt.outputs.ai_comment}}`
           })
 ```
 
@@ -90,7 +90,7 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: ${{steps.sfgpt.outputs.ai_comment}}
+            body: `${{steps.sfgpt.outputs.ai_comment}}`
           })
 ```
 
@@ -149,4 +149,4 @@ After testing you can [create a version tag](https://github.com/actions/toolkit/
 
 ## License
 
-The scripts and documentation in this project are released under the [MIT License](LICENSE.md).
+The scripts and documentation in this project are released under the [MIT License](LICENSE).
