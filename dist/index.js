@@ -325,24 +325,25 @@ function cleanup() {
 exports.cleanup = cleanup;
 function createDelta() {
     try {
-        (0, cp_1.default)('echo', ['y', '|', 'sfdx', 'plugins:install', 'sfdx-git-delta']);
+        (0, cp_1.default)('mkdir', ['-p', DIFF_DIR], CP_OPTIONS);
+        (0, cp_1.default)('sfdx', [
+            'sgd:source:delta',
+            '--to',
+            `${DIFF_TO}`,
+            '--from',
+            `${DIFF_FROM}`,
+            '--generate-delta',
+            '--output',
+            `${DIFF_DIR}`
+        ], CP_OPTIONS);
+        (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}destructiveChanges`], CP_OPTIONS);
+        (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS);
     }
     catch (err) {
-        // Swallow errors relating to unmet peer dependencies when installing sfdx-git-delta plugin
+        if (err instanceof Error) {
+            core.setFailed(err.message);
+        }
     }
-    (0, cp_1.default)('mkdir', ['-p', DIFF_DIR], CP_OPTIONS);
-    (0, cp_1.default)('sfdx', [
-        'sgd:source:delta',
-        '--to',
-        `${DIFF_TO}`,
-        '--from',
-        `${DIFF_FROM}`,
-        '--generate-delta',
-        '--output',
-        `${DIFF_DIR}`
-    ], CP_OPTIONS);
-    (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}destructiveChanges`], CP_OPTIONS);
-    (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS);
 }
 exports.createDelta = createDelta;
 function createSFMetadataContent() {
@@ -359,7 +360,38 @@ function createSFMetadataContent() {
 }
 exports.createSFMetadataContent = createSFMetadataContent;
 function prep() {
-    (0, cp_1.default)('npm', ['install', 'sfdx-cli', '--global']);
+    var _a, _b, _c;
+    (0, cp_1.default)('npm', [
+        'install',
+        'sfdx-cli',
+        '--global',
+        '--unsafe-perm=true',
+        '--allow-root',
+        '--silent'
+    ]);
+    (0, cp_1.default)('npm', [
+        'install',
+        'sfdx-git-delta',
+        '--global',
+        '--unsafe-perm=true',
+        '--allow-root',
+        '--silent'
+    ]);
+    const npmPrefix = (_c = (_b = (_a = (0, cp_1.default)('npm', ['config', 'get', 'prefix'], {
+        encoding: 'utf-8',
+        shell: true
+    })) === null || _a === void 0 ? void 0 : _a.stdout) === null || _b === void 0 ? void 0 : _b.toString()) === null || _c === void 0 ? void 0 : _c.trim();
+    const sgdPath = `${npmPrefix}/lib/node_modules/sfdx-git-delta`;
+    try {
+        (0, cp_1.default)('sfdx', ['plugins:link', `${sgdPath}`], {
+            encoding: 'utf-8',
+            shell: true
+        });
+    }
+    catch (err) {
+        // Swallow error as sfdx plugins:link always returns a status code of 1
+        // See: https://trailhead.salesforce.com/trailblazer-community/feed/0D53A00004f0GPYSA2
+    }
 }
 exports.prep = prep;
 exports["default"] = { cleanup, createDelta, createSFMetadataContent, prep };
