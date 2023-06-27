@@ -368,7 +368,7 @@ function prep() {
     ]);
     (0, cp_1.default)('npm', [
         'install',
-        'sfdx-git-delta',
+        'tythonco/sfdx-git-delta#bugfix/deprecated-config-name-for-api-version',
         '--global',
         '--unsafe-perm=true',
         '--allow-root',
