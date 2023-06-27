@@ -6,9 +6,6 @@ on: # rebuild any PRs and main branch changes
       - main
       - 'releases/*'
 
-env:
-  HOME: /root
-
 jobs:
   build: # make sure build/ci work properly
     runs-on: ubuntu-latest
@@ -21,6 +18,13 @@ jobs:
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: ./
+        run: |
+          env
+          export HOME=/root
+          env
         with:
           openai_api_key: test
