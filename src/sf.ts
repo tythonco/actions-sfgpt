@@ -84,22 +84,6 @@ export function prep(): void {
     '--allow-root',
     '--silent'
   ])
-  const npmPrefix = spawnSync('npm', ['config', 'get', 'prefix'], {
-    encoding: 'utf-8',
-    shell: true
-  })
-    ?.stdout?.toString()
-    ?.trim()
-  const sgdPath = `${npmPrefix}/lib/node_modules/sfdx-git-delta`
-  try {
-    spawnSync('sfdx', ['plugins:link', `${sgdPath}`], {
-      encoding: 'utf-8',
-      shell: true
-    })
-  } catch (err) {
-    // Swallow error as sfdx plugins:link always returns a status code of 1
-    // See: https://trailhead.salesforce.com/trailblazer-community/feed/0D53A00004f0GPYSA2
-  }
 }
 
 export default {cleanup, createDelta, createSFMetadataContent, prep}
