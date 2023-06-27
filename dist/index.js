@@ -337,7 +337,9 @@ function createDelta() {
         `${DIFF_FROM}`,
         '--generate-delta',
         '--output',
-        `${DIFF_DIR}`
+        `${DIFF_DIR}`,
+        '--exclude-api-version',
+        'true'
     ], CP_OPTIONS);
     (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}destructiveChanges`], CP_OPTIONS);
     (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS);
@@ -357,7 +359,6 @@ function createSFMetadataContent() {
 }
 exports.createSFMetadataContent = createSFMetadataContent;
 function prep() {
-    var _a, _b, _c;
     (0, cp_1.default)('npm', [
         'install',
         'sfdx-cli',
@@ -368,27 +369,12 @@ function prep() {
     ]);
     (0, cp_1.default)('npm', [
         'install',
-        'sfdx-git-delta',
+        'tythonco/sfdx-git-delta#bugfix/deprecated-config-name-for-api-version',
         '--global',
         '--unsafe-perm=true',
         '--allow-root',
         '--silent'
     ]);
-    const npmPrefix = (_c = (_b = (_a = (0, cp_1.default)('npm', ['config', 'get', 'prefix'], {
-        encoding: 'utf-8',
-        shell: true
-    })) === null || _a === void 0 ? void 0 : _a.stdout) === null || _b === void 0 ? void 0 : _b.toString()) === null || _c === void 0 ? void 0 : _c.trim();
-    const sgdPath = `${npmPrefix}/lib/node_modules/sfdx-git-delta`;
-    try {
-        (0, cp_1.default)('sfdx', ['plugins:link', `${sgdPath}`], {
-            encoding: 'utf-8',
-            shell: true
-        });
-    }
-    catch (err) {
-        // Swallow error as sfdx plugins:link always returns a status code of 1
-        // See: https://trailhead.salesforce.com/trailblazer-community/feed/0D53A00004f0GPYSA2
-    }
 }
 exports.prep = prep;
 exports["default"] = { cleanup, createDelta, createSFMetadataContent, prep };

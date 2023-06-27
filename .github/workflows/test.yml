@@ -24,3 +24,4 @@ jobs:
       - uses: ./
         with:
           openai_api_key: test
+          HOME: /root
