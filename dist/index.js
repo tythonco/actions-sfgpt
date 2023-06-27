@@ -337,7 +337,9 @@ function createDelta() {
         `${DIFF_FROM}`,
         '--generate-delta',
         '--output',
-        `${DIFF_DIR}`
+        `${DIFF_DIR}`,
+        '--exclude-api-version',
+        'true'
     ], CP_OPTIONS);
     (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}destructiveChanges`], CP_OPTIONS);
     (0, cp_1.default)('rm', ['-rf', `${DIFF_DIR}package`], CP_OPTIONS);

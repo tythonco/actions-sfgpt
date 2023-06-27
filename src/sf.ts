@@ -41,7 +41,9 @@ export function createDelta(): void {
       `${DIFF_FROM}`,
       '--generate-delta',
       '--output',
-      `${DIFF_DIR}`
+      `${DIFF_DIR}`,
+      '--exclude-api-version',
+      'true'
     ],
     CP_OPTIONS
   )
